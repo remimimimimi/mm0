@@ -106,28 +106,24 @@
     '(metamath-zero-mode . "metamath-zero"))
   (lsp-register-client
    (make-lsp-client
-    :new-connection (lsp-stdio-connection "mm0-rs server")
-    ;; :new-connection (lsp-stdio-connection
-    ;;                   (lambda ()
-    ;;                     (append `,(list lsp-metamath-zero-executable-path "server")
-    ;;                             `,(when lsp-metamath-zero-warn-unnecessary-parens-enable
-    ;;                                 "--warn-unnecessary-parens"))))
+    :new-connection (lsp-stdio-connection
+                      (lambda ()
+                        (append `,(list lsp-metamath-zero-executable-path "server")
+                                `,(when lsp-metamath-zero-warn-unnecessary-parens-enable
+                                    "--warn-unnecessary-parens"))))
     :activation-fn (lsp-activate-on "metamath-zero")
     :server-id 'metamath-zero))
 
   ;; Enable semantic tokens on mode hook and disable on major mode change.
-  (defvar metamath-zero-previous-semantic-tokens-value nil)
-  (setq metamath-zero-previous-semantic-tokens-value lsp-semantic-tokens-enable)
   (add-hook 'mm0-mode-hook
+    (defvar metamath-zero-previous-semantic-tokens-value lsp-semantic-tokens-enable)
     #'(lambda ()
         (unless lsp-semantic-tokens-enable
           (lsp-semantic-tokens-mode))))
   (add-hook 'change-major-mode-hook
     #'(lambda ()
         (unless metamath-zero-previous-semantic-tokens-value
-          (lsp-semantic-tokens-mode))))
-
-  )
+          (lsp-semantic-tokens-mode)))))
 
 (with-eval-after-load 'eglot
   (defcustom lsp-metamath-zero-command "mm0-rs server"
@@ -137,6 +133,5 @@
   (add-to-list 'eglot-server-programs
                `(metamath-zero-mode . ,lsp-metamath-zero-command)))
 
-(define-key)
 (provide 'metamath-zero-mode)
 ;;; metamath-zero-mode.el ends here
